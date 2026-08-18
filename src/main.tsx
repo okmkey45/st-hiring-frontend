@@ -1,10 +1,20 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { Provider } from "react-redux";
+import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import App from "./App.tsx";
+import { store } from "./store";
+import "./index.css";
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const theme = createTheme();
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <App />
+      </ThemeProvider>
+    </Provider>
   </React.StrictMode>,
-)
+);

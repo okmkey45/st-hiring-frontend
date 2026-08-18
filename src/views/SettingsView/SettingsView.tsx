@@ -66,15 +66,7 @@ export function SettingsView() {
   };
 
   return (
-    <Container
-      maxWidth="sm"
-      disableGutters
-      sx={{
-        minHeight: "100vh",
-        py: 2,
-        px: 2,
-      }}
-    >
+    <Container maxWidth="sm" disableGutters>
       <Paper
         elevation={0}
         sx={{

@@ -1,6 +1,14 @@
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { Alert, Box, Button, TextField } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  InputAdornment,
+  Stack,
+  TextField,
+} from "@mui/material";
 import type { Settings } from "../../types/settings";
 
 const validationSchema = Yup.object({
@@ -42,7 +50,7 @@ export function SettingsForm({
     >
       {({ values, errors, touched, handleChange, handleBlur }) => (
         <Form noValidate>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+          <Stack spacing={{ xs: 2.5, sm: 3 }}>
             <TextField
               name="maxTicketsPerBooking"
               label="Max tickets per booking"
@@ -55,15 +63,22 @@ export function SettingsForm({
                 Boolean(errors.maxTicketsPerBooking)
               }
               helperText={
-                touched.maxTicketsPerBooking && errors.maxTicketsPerBooking
+                (touched.maxTicketsPerBooking &&
+                  errors.maxTicketsPerBooking) ||
+                "Upper limit for a single checkout."
               }
               fullWidth
               inputProps={{ min: 1, step: 1 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">tickets</InputAdornment>
+                ),
+              }}
             />
 
             <TextField
               name="bookingTimeoutMinutes"
-              label="Booking timeout (minutes)"
+              label="Booking timeout"
               type="number"
               value={values.bookingTimeoutMinutes}
               onChange={handleChange}
@@ -73,15 +88,22 @@ export function SettingsForm({
                 Boolean(errors.bookingTimeoutMinutes)
               }
               helperText={
-                touched.bookingTimeoutMinutes && errors.bookingTimeoutMinutes
+                (touched.bookingTimeoutMinutes &&
+                  errors.bookingTimeoutMinutes) ||
+                "How long a held seat stays reserved."
               }
               fullWidth
               inputProps={{ min: 1, step: 1 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">min</InputAdornment>
+                ),
+              }}
             />
 
             <TextField
               name="serviceFeePercentage"
-              label="Service fee (%)"
+              label="Service fee"
               type="number"
               value={values.serviceFeePercentage}
               onChange={handleChange}
@@ -91,10 +113,17 @@ export function SettingsForm({
                 Boolean(errors.serviceFeePercentage)
               }
               helperText={
-                touched.serviceFeePercentage && errors.serviceFeePercentage
+                (touched.serviceFeePercentage &&
+                  errors.serviceFeePercentage) ||
+                "Added on top of the ticket subtotal."
               }
               fullWidth
               inputProps={{ min: 0, max: 100, step: 0.01 }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">%</InputAdornment>
+                ),
+              }}
             />
 
             {saveStatus === "succeeded" && (
@@ -105,17 +134,36 @@ export function SettingsForm({
               <Alert severity="error">{saveError}</Alert>
             )}
 
-            <Button
-              type="submit"
-              variant="contained"
-              size="large"
-              fullWidth
-              disabled={isSaving}
-              sx={{ mt: 1 }}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: { xs: "stretch", sm: "flex-end" },
+                pt: { xs: 0.5, sm: 1 },
+              }}
             >
-              {isSaving ? "Saving…" : "Save settings"}
-            </Button>
-          </Box>
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                disabled={isSaving}
+                startIcon={
+                  isSaving ? (
+                    <CircularProgress size={18} color="inherit" />
+                  ) : undefined
+                }
+                sx={{
+                  width: { xs: "100%", sm: "auto" },
+                  minWidth: { sm: 160 },
+                  px: { sm: 3 },
+                  py: 1.25,
+                  borderRadius: 2,
+                  fontWeight: 600,
+                }}
+              >
+                {isSaving ? "Saving…" : "Save settings"}
+              </Button>
+            </Box>
+          </Stack>
         </Form>
       )}
     </Formik>

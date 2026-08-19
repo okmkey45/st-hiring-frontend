@@ -22,20 +22,20 @@ export function EventCard({ event }: EventCardProps) {
   return (
     <Card
       sx={{
-        borderRadius: 0,
+        height: "100%",
+        borderRadius: 1,
         border: "none",
-        boxShadow: "none",
-        borderBottom: "none",
-        borderColor: "divider",
-        backgroundColor: "transparent",
-        transition: "background-color 150ms ease",
+        boxShadow: 2,
+        backgroundColor: "background.paper",
+        transition: "background-color 150ms ease, box-shadow 150ms ease",
         "&:hover": {
           backgroundColor: "action.hover",
+          boxShadow: 3,
         },
       }}
     >
       <CardContent sx={{ display: "flex", justifyContent: "center", px: 2, py: 2.5 }}>
-        <Box sx={{ display: "flex", gap: 4, width: "100%", maxWidth: "sm" }}>
+        <Box sx={{ display: "flex", gap: 4, width: "100%" }}>
           <Box sx={{ width: 100, flexShrink: 0 }}>
             <Typography fontWeight={700} color="text.primary" lineHeight={1.2}>
               {monthDay}

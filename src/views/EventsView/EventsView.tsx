@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Box, CircularProgress, Alert, Typography, Stack } from "@mui/material";
+import { Box, CircularProgress, Alert, Typography, Grid } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchEvents } from "../../store/eventsSlice";
 import { EventCard } from "./EventCard";
@@ -12,7 +12,7 @@ export function EventsView() {
     dispatch(
       fetchEvents({
         page: 1,
-        size: 10,
+        size: 25,
         fields: ["id", "name", "location", "date"],
       })
     );
@@ -35,16 +35,18 @@ export function EventsView() {
   }
 
   return (
-    <Box sx={{ py: 4, maxWidth: "430px" }}>
-      <Typography variant="h4" component="h1" gutterBottom sx={{ px: 2, textAlign: "center" }}>
+    <Box sx={{ py: 4, px: 2 }}>
+      <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: "center" }}>
         All Events
       </Typography>
-      
-      <Stack sx={{ mt: 2 }}>
+
+      <Grid container spacing={2} sx={{ mt: 2 }}>
         {events.map((event) => (
-          <EventCard key={event.id} event={event} />
+          <Grid item key={event.id} xs={12} sm={6} md={6} lg={4}>
+            <EventCard event={event} />
+          </Grid>
         ))}
-      </Stack>
+      </Grid>
     </Box>
   );
 }

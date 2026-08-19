@@ -1,22 +1,37 @@
 import { useEffect } from "react";
-import { Box, CircularProgress, Alert, Typography, Grid } from "@mui/material";
+import { Box, CircularProgress, Alert, Typography, Grid, Button } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchEvents } from "../../store/eventsSlice";
 import { EventCard } from "./EventCard";
 
+const EVENT_FIELDS = ["id", "name", "location", "date"] as const;
+const PAGE_SIZE = 8;
+
 export function EventsView() {
   const dispatch = useAppDispatch();
-  const { data: events, status, error } = useAppSelector((state) => state.events);
+  const { data: events, meta, status, error } = useAppSelector((state) => state.events);
 
   useEffect(() => {
     dispatch(
       fetchEvents({
         page: 1,
-        size: 25,
-        fields: ["id", "name", "location", "date"],
+        size: PAGE_SIZE,
+        fields: [...EVENT_FIELDS],
       })
     );
   }, [dispatch]);
+
+  const handleLoadMore = () => {
+    if (meta?.nextPage == null) return;
+
+    dispatch(
+      fetchEvents({
+        page: meta.nextPage,
+        size: PAGE_SIZE,
+        fields: [...EVENT_FIELDS],
+      })
+    );
+  };
 
   if (status === "loading" && events.length === 0) {
     return (
@@ -47,6 +62,18 @@ export function EventsView() {
           </Grid>
         ))}
       </Grid>
+
+      {meta?.nextPage != null && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+          <Button
+            variant="contained"
+            onClick={handleLoadMore}
+            disabled={status === "loading"}
+          >
+            Load more
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 }

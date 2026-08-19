@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, beforeEach } from 'vitest'
 import '../../test/mocks/reduxHooks'
 import '../../test/mocks/eventsSlice'
@@ -25,14 +25,14 @@ describe('EventsView', () => {
     expect(fetchEvents).toHaveBeenCalledTimes(1)
     expect(fetchEvents).toHaveBeenCalledWith({
       page: 1,
-      size: 10,
+      size: 25,
       fields: ['id', 'name', 'location', 'date'],
     })
     expect(reduxMocks.mockDispatch).toHaveBeenCalledWith({
       type: 'events/fetch',
       payload: {
         page: 1,
-        size: 10,
+        size: 25,
         fields: ['id', 'name', 'location', 'date'],
       },
     })
@@ -70,5 +70,59 @@ describe('EventsView', () => {
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /All Events/i })).toBeInTheDocument()
     expect(screen.getByText(mockEvents[0].name)).toBeInTheDocument()
+  })
+
+  it('shows load more button when there is a next page', () => {
+    renderEventsView({
+      data: mockEvents,
+      status: 'idle',
+      meta: {
+        totalItems: 50,
+        totalPages: 2,
+        currentPage: 1,
+        nextPage: 2,
+        prevPage: null,
+      },
+    })
+
+    expect(screen.getByRole('button', { name: /Load more/i })).toBeInTheDocument()
+  })
+
+  it('hides load more button when there is no next page', () => {
+    renderEventsView({
+      data: mockEvents,
+      status: 'idle',
+      meta: {
+        totalItems: 2,
+        totalPages: 1,
+        currentPage: 1,
+        nextPage: null,
+        prevPage: null,
+      },
+    })
+
+    expect(screen.queryByRole('button', { name: /Load more/i })).not.toBeInTheDocument()
+  })
+
+  it('dispatches fetchEvents for the next page when load more is clicked', () => {
+    renderEventsView({
+      data: mockEvents,
+      status: 'idle',
+      meta: {
+        totalItems: 50,
+        totalPages: 2,
+        currentPage: 1,
+        nextPage: 2,
+        prevPage: null,
+      },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /Load more/i }))
+
+    expect(fetchEvents).toHaveBeenCalledWith({
+      page: 2,
+      size: 25,
+      fields: ['id', 'name', 'location', 'date'],
+    })
   })
 })

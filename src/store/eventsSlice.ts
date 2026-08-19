@@ -59,7 +59,11 @@ const eventsSlice = createSlice({
       })
       .addCase(fetchEvents.fulfilled, (state, action) => {
         state.status = "idle";
-        state.data = action.payload.data;
+        const page = action.meta.arg?.page ?? 1;
+        state.data =
+          page > 1
+            ? [...state.data, ...action.payload.data]
+            : action.payload.data;
         state.meta = action.payload.meta;
       })
       .addCase(fetchEvents.rejected, (state, action) => {

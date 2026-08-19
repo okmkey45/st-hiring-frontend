@@ -33,6 +33,40 @@ describe('eventsSlice reducer', () => {
       expect(state.meta).toEqual(mockPaginatedEvents.meta)
     })
 
+    it('appends events when loading a later page', () => {
+      const nextPageEvents = {
+        data: [
+          {
+            ...mockPaginatedEvents.data[0],
+            id: 3,
+            name: 'Page Two Event',
+          },
+        ],
+        meta: {
+          totalItems: 3,
+          totalPages: 2,
+          currentPage: 2,
+          nextPage: null,
+          prevPage: 1,
+        },
+      }
+
+      const state = reducer(
+        {
+          ...defaultEventsState,
+          data: mockPaginatedEvents.data,
+          status: 'loading',
+        },
+        fetchEvents.fulfilled(nextPageEvents, '', { page: 2, size: 25 })
+      )
+
+      expect(state.data).toEqual([
+        ...mockPaginatedEvents.data,
+        ...nextPageEvents.data,
+      ])
+      expect(state.meta).toEqual(nextPageEvents.meta)
+    })
+
     it('stores fetch error when rejected', () => {
       const state = reducer(
         { ...defaultEventsState, status: 'loading' },

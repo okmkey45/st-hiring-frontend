@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router";
-import { SettingsView } from "./views/SettingsView";
+import { SettingsView } from "./views/SettingsView/SettingsView";
 import { AppLayout } from "./layout/AppLayout";
 import { EventsView } from "./views/EventsView/EventsView";
 

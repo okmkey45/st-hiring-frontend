@@ -8,7 +8,7 @@ export function AppLayout() {
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <AppHeader />
 
-      <Container component="main" maxWidth="lg" sx={{ flexGrow: 1, py: 3 }}>
+      <Container component="main" maxWidth="lg" sx={{ flexGrow: 1, px: 0 }}>
         <Outlet />
       </Container>
 

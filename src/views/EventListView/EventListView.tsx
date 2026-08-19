@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import { Box, CircularProgress, Alert, Typography, Grid, Button } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchEvents } from "../../store/eventsSlice";
@@ -7,7 +8,8 @@ import { EventCard } from "./EventCard";
 const EVENT_FIELDS = ["id", "name", "location", "date"] as const;
 const PAGE_SIZE = 8;
 
-export function EventsView() {
+export function EventListView() {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { data: events, meta, status, error } = useAppSelector((state) => state.events);
 
@@ -58,7 +60,10 @@ export function EventsView() {
       <Grid container spacing={2} sx={{ mt: 2 }}>
         {events.map((event) => (
           <Grid item key={event.id} xs={12} sm={6} md={6} lg={4}>
-            <EventCard event={event} />
+            <EventCard
+              event={event}
+              onClick={() => navigate(`/events/${event.id}`)}
+            />
           </Grid>
         ))}
       </Grid>

@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
 import { EventCard } from './EventCard'
 import { mockEvent } from '../../test/fixtures/events'
 
@@ -27,5 +27,20 @@ describe('EventCard', () => {
 
     expect(screen.getByText(monthDay)).toBeInTheDocument()
     expect(screen.getByText(`${weekday} · ${time}`)).toBeInTheDocument()
+  })
+
+  it('calls onClick when the card is clicked', () => {
+    const handleClick = vi.fn()
+    render(<EventCard event={mockEvent} onClick={handleClick} />)
+
+    fireEvent.click(screen.getByRole('button'))
+
+    expect(handleClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('is not clickable when onClick is omitted', () => {
+    render(<EventCard event={mockEvent} />)
+
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })
 })

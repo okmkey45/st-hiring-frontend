@@ -1,51 +1,68 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, it, expect, beforeEach } from 'vitest'
+import { MemoryRouter, useNavigate } from 'react-router'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import '../../test/mocks/reduxHooks'
 import '../../test/mocks/eventsSlice'
 import { reduxMocks } from '../../test/mocks/reduxHooks'
 import { mockEvents } from '../../test/fixtures/events'
 import { resetReduxMocks, setMockReduxState } from '../../test/utils/mockReduxState'
-import { EventsView } from './EventsView'
+import { EventListView } from './EventListView'
 import { fetchEvents } from '../../store/eventsSlice'
 import type { EventsState } from '../../store/eventsSlice'
 
-function renderEventsView(state: Partial<EventsState> = {}) {
+vi.mock('react-router', async () => {
+  const actual = await vi.importActual<typeof import('react-router')>('react-router')
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  }
+})
+
+const mockNavigate = vi.fn()
+
+function renderEventListView(state: Partial<EventsState> = {}) {
   setMockReduxState({ events: state })
-  return render(<EventsView />)
+  vi.mocked(useNavigate).mockReturnValue(mockNavigate)
+  return render(
+    <MemoryRouter>
+      <EventListView />
+    </MemoryRouter>
+  )
 }
 
-describe('EventsView', () => {
+describe('EventListView', () => {
   beforeEach(() => {
     resetReduxMocks()
+    mockNavigate.mockReset()
   })
 
   it('dispatches fetchEvents on mount', () => {
-    renderEventsView({ status: 'loading' })
+    renderEventListView({ status: 'loading' })
 
     expect(fetchEvents).toHaveBeenCalledTimes(1)
     expect(fetchEvents).toHaveBeenCalledWith({
       page: 1,
-      size: 25,
+      size: 8,
       fields: ['id', 'name', 'location', 'date'],
     })
     expect(reduxMocks.mockDispatch).toHaveBeenCalledWith({
       type: 'events/fetch',
       payload: {
         page: 1,
-        size: 25,
+        size: 8,
         fields: ['id', 'name', 'location', 'date'],
       },
     })
   })
 
   it('shows loading spinner while fetching events', () => {
-    renderEventsView({ status: 'loading', data: [] })
+    renderEventListView({ status: 'loading', data: [] })
 
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
   })
 
   it('shows error alert when fetch fails', () => {
-    renderEventsView({
+    renderEventListView({
       status: 'failed',
       data: [],
       error: 'Failed to fetch events',
@@ -55,7 +72,7 @@ describe('EventsView', () => {
   })
 
   it('renders events list with loaded data', () => {
-    renderEventsView({ data: mockEvents, status: 'idle' })
+    renderEventListView({ data: mockEvents, status: 'idle' })
 
     expect(screen.getByRole('heading', { name: /All Events/i })).toBeInTheDocument()
     expect(screen.getByText(mockEvents[0].name)).toBeInTheDocument()
@@ -65,7 +82,7 @@ describe('EventsView', () => {
   })
 
   it('shows events list instead of spinner when loading with existing data', () => {
-    renderEventsView({ data: mockEvents, status: 'loading' })
+    renderEventListView({ data: mockEvents, status: 'loading' })
 
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /All Events/i })).toBeInTheDocument()
@@ -73,7 +90,7 @@ describe('EventsView', () => {
   })
 
   it('shows load more button when there is a next page', () => {
-    renderEventsView({
+    renderEventListView({
       data: mockEvents,
       status: 'idle',
       meta: {
@@ -89,7 +106,7 @@ describe('EventsView', () => {
   })
 
   it('hides load more button when there is no next page', () => {
-    renderEventsView({
+    renderEventListView({
       data: mockEvents,
       status: 'idle',
       meta: {
@@ -105,7 +122,7 @@ describe('EventsView', () => {
   })
 
   it('dispatches fetchEvents for the next page when load more is clicked', () => {
-    renderEventsView({
+    renderEventListView({
       data: mockEvents,
       status: 'idle',
       meta: {
@@ -121,8 +138,16 @@ describe('EventsView', () => {
 
     expect(fetchEvents).toHaveBeenCalledWith({
       page: 2,
-      size: 25,
+      size: 8,
       fields: ['id', 'name', 'location', 'date'],
     })
+  })
+
+  it('navigates to the event detail view when a card is clicked', () => {
+    renderEventListView({ data: mockEvents, status: 'idle' })
+
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(mockEvents[0].name) }))
+
+    expect(mockNavigate).toHaveBeenCalledWith(`/events/${mockEvents[0].id}`)
   })
 })

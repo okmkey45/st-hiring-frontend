@@ -1,14 +1,17 @@
 import { createBrowserRouter } from "react-router";
 import { SettingsView } from "./views/SettingsView/SettingsView";
 import { AppLayout } from "./layout/AppLayout";
-import { EventsView } from "./views/EventsView/EventsView";
+import { EventListView } from "./views/EventListView/EventListView";
+import { EventView } from "./views/EventView/EventView";
 
 const routes = [
   {
     path: "/",
-    element: (
-      <EventsView />
-    ),
+    element: <EventListView />,
+  },
+  {
+    path: "/events/:eventId",
+    element: <EventView />,
   },
   {
     path: "/settings",
@@ -20,5 +23,5 @@ export const router = createBrowserRouter([
   {
     element: <AppLayout />,
     children: routes,
-  }
+  },
 ]);
